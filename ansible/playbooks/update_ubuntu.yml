@@ -1,0 +1,46 @@
+---
+- name: Check connectivity to hosts
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Ping all hosts
+      ansible.builtin.ping:
+
+- name: Update and upgrade Ubuntu packages
+  hosts: all
+  become: yes
+  tasks:
+
+    - name: Run only on Ubuntu family
+      ansible.builtin.debug:
+        msg: "Обновление будет выполнено только на Ubuntu/Debian"
+      when: ansible_os_family == "Debian"
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+
+    - name: Upgrade all packages
+      ansible.builtin.apt:
+        upgrade: dist
+        autoremove: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Check if reboot is required
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+      when: ansible_os_family == "Debian"
+
+    - name: Show reboot required message
+      ansible.builtin.debug:
+        msg: "⚠️ Требуется перезагрузка системы!"
+      when: ansible_os_family == "Debian" and reboot_required.stat.exists
+
+    - name: Show message when reboot not required
+      ansible.builtin.debug:
+        msg: "✅ Перезагрузка не требуется"
+      when: ansible_os_family == "Debian" and not reboot_required.stat.exists
+
