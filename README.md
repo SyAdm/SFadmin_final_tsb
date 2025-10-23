@@ -10,17 +10,17 @@
 ---
 
 ## ✅ Часть 1 — Развёртывание серверов
-- [✅] Создать 3 ВМ на Ubuntu.  
-- [✅] Настроить SSH-ключи для доступа.  
-- [✅] Создать Ansible inventory (`hosts.ini`).  
+- [✔️] Создать 3 ВМ на Ubuntu.  
+- [✔️] Настроить SSH-ключи для доступа.  
+- [✔️] Создать Ansible inventory (`hosts.ini`).  
 
 **Сервер 1 (базовый):**  
-- [✅] Zabbix-server  
-- [✅] Grafana  
-- [✅] Ansible  
-- [✅] Filebeat  
+- [✔️] Zabbix-server  
+- [✔️] Grafana  
+- [✔️] Ansible  
+- [✔️] Filebeat  
 - [ ] OpenVPN-server (TCP)  
-- [ ] Клонировать GitHub-репозиторий  
+- [✔️] Клонировать GitHub-репозиторий  
 
 **Сервер 2:**  
 - [ ] nginx  
