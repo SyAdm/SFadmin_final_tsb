@@ -19,7 +19,7 @@
 - [x] Grafana  
 - [x] Ansible  
 - [x] Filebeat  
-- [ ] OpenVPN-server (TCP)  
+- [x] OpenVPN-server (TCP)  
 - [x] Клонировать GitHub-репозиторий  
 
 **Сервер 2:**  
