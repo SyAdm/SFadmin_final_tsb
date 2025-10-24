@@ -16,7 +16,7 @@
 
 **Сервер 1 (базовый):**  
 - [x] [Zabbix-server](https://github.com/SyAdm/SFadmin_final_tsb/blob/main/part_1/server_1/Zabbix-server.md)  
-- [x] Grafana  
+- [x] [Grafana](https://github.com/SyAdm/SFadmin_final_tsb/blob/main/part_1/server_1/Grafana.md)  
 - [x] Ansible  
 - [x] Filebeat  
 - [x] OpenVPN-server (TCP)  
