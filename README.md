@@ -17,10 +17,10 @@
 **Сервер 1 (базовый):**  
 - [x] [Zabbix-server](https://github.com/SyAdm/SFadmin_final_tsb/blob/main/part_1/server_1/Zabbix-server.md)  
 - [x] [Grafana](https://github.com/SyAdm/SFadmin_final_tsb/blob/main/part_1/server_1/Grafana.md)  
-- [x] Ansible  
-- [x] Filebeat  
-- [x] OpenVPN-server (TCP)  
-- [x] Клонировать GitHub-репозиторий  
+- [x] [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#pipx-install)
+- [x] [Filebeat](https://www.elastic.co/docs/reference/beats/filebeat/filebeat-installation-configuration) (Step 1)
+- [x] [OpenVPN-server (TCP)](https://www.cyberciti.biz/faq/howto-setup-openvpn-server-on-ubuntu-linux-14-04-or-16-04-lts/)  
+- [x] Клонировать GitHub-репозиторий
 
 **Сервер 2:**  
 - [ ] nginx  
