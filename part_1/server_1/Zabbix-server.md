@@ -1,7 +1,9 @@
-# Общая информация
+## Zabbix-server
 
-На [оф. сайте](https://www.zabbix.com/ru/download?zabbix=7.4&os_distribution=ubuntu&os_version=22.04&components=server_frontend_agent&db=mysql&ws=apache) есть конфигуратор для выбора платформы/
-Для своего проекта я выбрал следующее:
+### Общая информация
+
+На [оф. сайте](https://www.zabbix.com/ru/download?zabbix=7.4&os_distribution=ubuntu&os_version=22.04&components=server_frontend_agent&db=mysql&ws=apache) есть конфигуратор для выбора платформы.
+Для своего проекта я выбрал следующую конфигурацию:
 
 1. Версия Zabbix = 7.4 (самая актуальная на момент написания статьи)
 2. Дистрибутив ОС = Ubuntu
@@ -10,9 +12,10 @@
 5. База данных = PostgreSQL
 6. Веб-сервер = Apache
 
-Ссылка: 
+<img width="1134" height="494" alt="image" src="https://github.com/user-attachments/assets/b1a62a0d-f540-489c-bd32-d3d813761325" />
 
-# Подготовка и установка
+
+### Подготовка и установка
 
 1. Требуется установленная СУБД - [PostgreSQL](https://www.postgresql.org/download/linux/ubuntu/)
 2. Далее переходим к установке Zabbix сервера
@@ -62,3 +65,6 @@ g. Open Zabbix UI web page
 The default URL for Zabbix UI when using Apache web server is http://host/zabbix
 
 Готово!
+
+<img width="1920" height="992" alt="image" src="https://github.com/user-attachments/assets/1880b3ac-4c0b-49d8-b12d-0698029095b4" />
+<img width="1920" height="992" alt="image" src="https://github.com/user-attachments/assets/a317606c-b568-46b8-a1c3-4dc0fdcf45f3" />
