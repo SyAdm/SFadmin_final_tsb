@@ -1,7 +1,11 @@
 ---
+# playbooks/install_nginx.yml
+
 - name: Install and configure NGINX
-  hosts: all
-  become: yes
+  hosts: web
+  become: true
+  gather_facts: true
+
   roles:
-    - nginx
+    - role: nginx
 

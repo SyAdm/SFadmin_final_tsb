@@ -1,0 +1,22 @@
+---
+# roles/nginx/main.yml
+
+- name: Install NGINX
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+  become: true
+
+- name: Ensure NGINX is started and enabled
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true
+  become: true
+
+- name: Deploy custom index.html
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+  become: true
+
