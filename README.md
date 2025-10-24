@@ -15,7 +15,7 @@
 - [x] Создать Ansible inventory (`hosts.ini`).  
 
 **Сервер 1 (базовый):**  
-- [x] Zabbix-server  
+- [x] [Zabbix-server](https://github.com/SyAdm/SFadmin_final_tsb/blob/main/part_1/server_1/Zabbix-server.md)  
 - [x] Grafana  
 - [x] Ansible  
 - [x] Filebeat  
