@@ -23,13 +23,13 @@
 - [x] Клонировать GitHub-репозиторий
 
 **Сервер 2:**  
-- [ ] nginx  
-- [ ] Apache  
+- [x] nginx  
+- [x] Apache  
 - [ ] PHP  
 - [ ] Zabbix-agent  
-- [ ] bind (DNS)  
+- [x] bind (DNS) - не разворачивал, так как есть купленный личный домен tusher.ru, NS завернут на [cloudflare.com](https://dash.cloudflare.com/)
 - [ ] Почтовый сервер (Postfix/Exim)  
-- [ ] filebeat  
+- [x] filebeat  
 
 **Сервер 3:**  
 - [ ] PostgreSQL 12  
