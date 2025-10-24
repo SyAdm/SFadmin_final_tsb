@@ -23,7 +23,9 @@
 
 	a. Заходим под root-ом
 	Start new shell session with root privileges.
+	---
 	$ sudo -s
+	---
 	
 	b. Установите репозиторий Zabbix
 	
