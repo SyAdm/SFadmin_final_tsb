@@ -2,7 +2,7 @@
 
 ### Общая информация
 
-На [оф. сайте](https://www.zabbix.com/ru/download?zabbix=7.4&os_distribution=ubuntu&os_version=22.04&components=server_frontend_agent&db=mysql&ws=apache) есть конфигуратор для выбора платформы.
+На [оф. сайте](https://www.zabbix.com/ru/download?zabbix=7.4&os_distribution=ubuntu&os_version=22.04&components=server_frontend_agent&db=mysql&ws=apache) есть конфигуратор для выбора платформы (рис. 1).
 Для своего проекта я выбрал следующую конфигурацию:
 
 1. Версия Zabbix = 7.4 (самая актуальная на момент написания статьи)
@@ -12,8 +12,9 @@
 5. База данных = PostgreSQL
 6. Веб-сервер = Apache
 
-<img width="1134" height="494" alt="image" src="https://github.com/user-attachments/assets/b1a62a0d-f540-489c-bd32-d3d813761325" />
+<img width="500" height="350" alt="image" src="https://github.com/user-attachments/assets/b1a62a0d-f540-489c-bd32-d3d813761325" />
 
+*Рис. 1. Скриншот с официального сайта Zabbix.*
 
 ### Подготовка и установка
 
@@ -64,7 +65,16 @@ systemctl enable zabbix-server zabbix-agent apache2
 g. Open Zabbix UI web page
 The default URL for Zabbix UI when using Apache web server is http://host/zabbix
 
+h. Откроется страница визарда настройки Zabbix-а, там всё интуитивно понятно.
+
 Готово!
 
-<img width="1920" height="992" alt="image" src="https://github.com/user-attachments/assets/1880b3ac-4c0b-49d8-b12d-0698029095b4" />
-<img width="1920" height="992" alt="image" src="https://github.com/user-attachments/assets/a317606c-b568-46b8-a1c3-4dc0fdcf45f3" />
+Пару скриншотов как пример того что вы должны получить по итогу (рис. 2,3):
+
+<img width="500" height="350" alt="image" src="https://github.com/user-attachments/assets/1880b3ac-4c0b-49d8-b12d-0698029095b4" />
+
+*Рис. 2. Страница авторизации Zabbix.*
+
+<img width="500" height="350" alt="image" src="https://github.com/user-attachments/assets/a317606c-b568-46b8-a1c3-4dc0fdcf45f3" />
+
+*Рис. 3. Zabbix дефолтный Dashboard.*
