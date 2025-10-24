@@ -39,6 +39,20 @@ ALTER ROLE grafana_user WITH PASSWORD '<GRAFANA_USER_PASSWORD>';
 CREATE DATABASE grafana WITH OWNER = grafana_user ENCODING = 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TABLESPACE = pg_default CONNECTION LIMIT = -1;
 ```
 
+Если при создании базы выдаст ошибку вида:
+***
+	ERROR:  new collation (en_US.UTF-8) is incompatible with the collation of the template database (C.UTF-8)
+	HINT:  Use the same collation as in the template database, or use template0 as template.
+***
+То ты просто создаёшь базу с локалью LC_COLLATE = 'en_US.UTF-8' но шаблонная база (template1), на основе которой PostgreSQL создаёт новые базы, использует другую локаль — C.UTF-8.
+PostgreSQL запрещает смешивать разные локали между базой-источником (template1) и создаваемой, потому что это может нарушить сортировку и сравнение строк.
+Решение, создать базу с указанием TEMPLATE template0 — это “чистая” база без предустановленных локалей!
+	
+Рабочая строчка создания базы будет такой:
+```
+CREATE DATABASE grafana WITH OWNER = grafana_user ENCODING = 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TEMPLATE template0 TABLESPACE = pg_default CONNECTION LIMIT = -1;
+```
+
 ### Далее переходим к установке и конфигурированию сервера Grafana
 
 Чтобы установить Grafana из репозитория APT, выполните следующие шаги:
