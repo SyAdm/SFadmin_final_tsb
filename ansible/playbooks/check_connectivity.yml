@@ -1,0 +1,61 @@
+---
+- name: Check connectivity and environment of all hosts
+  hosts: all
+  gather_facts: false
+  become: false
+
+  tasks:
+    - name: 🔹 Проверка SSH-доступности (ping module)
+      ansible.builtin.ping:
+
+    - name: 🔹 Проверка возможности подключения по SSH (whoami)
+      ansible.builtin.command: whoami
+      register: whoami_result
+
+    - name: Вывод текущего пользователя
+      ansible.builtin.debug:
+        msg: "Подключение к {{ inventory_hostname }} выполнено как {{ whoami_result.stdout }}"
+
+    - name: 🔹 Проверка sudo-доступа без пароля
+      become: true
+      ansible.builtin.command: whoami
+      register: sudo_check
+      ignore_errors: true
+
+    - name: Результат проверки sudo
+      ansible.builtin.debug:
+        msg: >-
+          {% if sudo_check.rc == 0 %}
+          ✅ sudo доступ без пароля есть
+          {% else %}
+          ⚠️ sudo требует пароль или не настроен
+          {% endif %}
+
+    - name: 🔹 Проверка возможности собрать факты
+      ansible.builtin.setup:
+      register: facts
+      ignore_errors: true
+
+    - name: Результат сбора фактов
+      ansible.builtin.debug:
+        msg: >-
+          {% if facts.failed is defined and facts.failed %}
+          ⚠️ Не удалось собрать факты
+          {% else %}
+          ✅ Факты успешно собраны ({{ facts.ansible_facts['ansible_distribution'] }} {{ facts.ansible_facts['ansible_distribution_version'] }})
+          {% endif %}
+
+    - name: 🔹 Проверка доступа в интернет (ping 8.8.8.8)
+      ansible.builtin.shell: ping -c 1 8.8.8.8
+      register: ping_test
+      ignore_errors: true
+
+    - name: Результат проверки интернета
+      ansible.builtin.debug:
+        msg: >-
+          {% if ping_test.rc == 0 %}
+          ✅ Интернет доступен
+          {% else %}
+          ⚠️ Интернет недоступен
+          {% endif %}
+

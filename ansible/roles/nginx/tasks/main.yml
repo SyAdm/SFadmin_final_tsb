@@ -1,0 +1,40 @@
+---
+- name: Install NGINX on Debian/Ubuntu
+  ansible.builtin.apt:
+    name: "{{ nginx_package }}"
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Install NGINX on RedHat/CentOS
+  ansible.builtin.yum:
+    name: "{{ nginx_package }}"
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Deploy custom index.html
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+    owner: www-data
+    group: www-data
+    mode: '0644'
+  notify: restart nginx
+  when: ansible_os_family == "Debian"
+
+- name: Deploy custom index.html (RHEL/CentOS path)
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /usr/share/nginx/html/index.html
+    owner: nginx
+    group: nginx
+    mode: '0644'
+  notify: restart nginx
+  when: ansible_os_family == "RedHat"
+
+- name: Ensure NGINX is enabled and running
+  ansible.builtin.service:
+    name: "{{ nginx_service }}"
+    state: started
+    enabled: yes
+
