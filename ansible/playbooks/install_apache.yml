@@ -1,0 +1,9 @@
+---
+- name: Install and configure Apache
+  hosts: "{{ target_hosts }}"
+  become: true
+  gather_facts: true
+
+  roles:
+    - apache
+

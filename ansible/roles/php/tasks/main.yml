@@ -1,0 +1,19 @@
+---
+- name: Install PHP and common modules
+  apt:
+    name:
+      - php
+      - php-cli
+      - php-mbstring
+      - php-xml
+      - php-curl
+      - libapache2-mod-php
+    state: present
+  become: true
+
+- name: Restart Apache to load PHP module
+  service:
+    name: apache2
+    state: restarted
+  become: true
+

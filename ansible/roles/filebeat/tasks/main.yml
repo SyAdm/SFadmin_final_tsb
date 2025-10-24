@@ -1,0 +1,20 @@
+---
+- name: Install Filebeat
+  apt:
+    name: filebeat
+    state: present
+  become: true
+
+- name: Configure Filebeat
+  template:
+    src: filebeat.yml.j2
+    dest: /etc/filebeat/filebeat.yml
+  become: true
+
+- name: Enable and start Filebeat
+  service:
+    name: filebeat
+    state: started
+    enabled: true
+  become: true
+

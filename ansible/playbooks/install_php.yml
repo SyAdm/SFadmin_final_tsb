@@ -1,0 +1,9 @@
+---
+- name: Install PHP on web servers
+  hosts: "{{target_hosts}}"
+  become: true
+  gather_facts: true
+
+  roles:
+    - php
+

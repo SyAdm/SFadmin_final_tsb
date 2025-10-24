@@ -1,0 +1,25 @@
+---
+- name: Install Zabbix agent
+  apt:
+    name: zabbix-agent
+    state: present
+  become: true
+
+- name: Configure zabbix_agentd.conf
+  lineinfile:
+    path: /etc/zabbix/zabbix_agentd.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    create: yes
+  loop:
+    - { regexp: '^Server=', line: 'Server=10.8.0.1' }
+    - { regexp: '^Hostname=', line: 'Hostname={{ inventory_hostname }}' }
+  become: true
+
+- name: Ensure Zabbix agent is started and enabled
+  service:
+    name: zabbix-agent
+    state: started
+    enabled: true
+  become: true
+
