@@ -25,7 +25,7 @@
 **Сервер 2:**  
 - [x] nginx  
 - [x] Apache  
-- [ ] PHP  
+- [x] PHP  
 - [ ] Zabbix-agent  
 - [x] bind (DNS) - не разворачивал, так как есть купленный личный домен tusher.ru, NS завернут на [cloudflare.com](https://dash.cloudflare.com/)
 - [ ] Почтовый сервер (Postfix/Exim)  
