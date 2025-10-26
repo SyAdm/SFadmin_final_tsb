@@ -23,17 +23,17 @@
 - [x] Клонировать GitHub-репозиторий
 
 **Сервер 2:**  
-- [x] nginx  
-- [x] Apache  
-- [x] PHP  
-- [ ] Zabbix-agent  
+- [x] nginx (с помощью роли ansible)
+- [x] Apache (с помощью роли ansible)
+- [x] PHP (с помощью роли ansible)
+- [x] Zabbix-agent (с помощью роли ansible)
 - [x] bind (DNS) - не разворачивал, так как есть купленный личный домен tusher.ru, NS завернут на [cloudflare.com](https://dash.cloudflare.com/)
 - [ ] Почтовый сервер (Postfix/Exim)  
-- [x] filebeat  
+- [x] filebeat (с помощью роли ansible)
 
 **Сервер 3:**  
 - [ ] PostgreSQL 12  
-- [ ] Zabbix-agent  
+- [x] Zabbix-agent (с помощью роли ansible)
 - [ ] ELK (Elasticsearch, Logstash, Kibana)  
 
 **Общее:**  
@@ -46,10 +46,10 @@
 
 ## ✅ Часть 2 — Настройка сервисов
 - [ ] Настроить локальное время (chrony/ntp)  
-- [ ] Zabbix мониторит все сервера (Linux template)  
+- [x] Zabbix мониторит все сервера (Linux template)  
 - [ ] Zabbix мониторит PostgreSQL  
 - [ ] Zabbix мониторит ELK  
-- [ ] Зарегистрировать бесплатный домен  
+- [x] Зарегистрировать бесплатный домен - имеется купленный личный домен tusher.ru, NS завернут на [cloudflare.com](https://dash.cloudflare.com/)
 - [ ] Настроить bind (DNS-сервер)  
 - [ ] Прописать A/NS/MX-записи  
 - [ ] Проверить резолвинг серверов по именам  
