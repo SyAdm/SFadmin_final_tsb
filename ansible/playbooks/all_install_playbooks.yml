@@ -1,0 +1,6 @@
+---
+- import_playbook: install_apache.yml
+- import_playbook: install_nginx.yml
+- import_playbook: install_filebeat.yml
+- import_playbook: install_zabbix_agent.yml
+- import_playbook: install_php.yml

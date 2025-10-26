@@ -1,6 +1,6 @@
 ---
 - name: Check connectivity and environment of all hosts
-  hosts: all
+  hosts: "{{ target_hosts | default('all') }}"
   gather_facts: false
   become: false
 
@@ -11,51 +11,25 @@
     - name: 🔹 Проверка возможности подключения по SSH (whoami)
       ansible.builtin.command: whoami
       register: whoami_result
+      changed_when: false
+      ignore_errors: true
 
     - name: Вывод текущего пользователя
       ansible.builtin.debug:
-        msg: "Подключение к {{ inventory_hostname }} выполнено как {{ whoami_result.stdout }}"
+        msg: "Текущий пользователь на {{ inventory_hostname }}: {{ whoami_result.stdout | default('недоступно (check mode или ошибка)') }}"
+      when: whoami_result is defined
 
-    - name: 🔹 Проверка sudo-доступа без пароля
-      become: true
-      ansible.builtin.command: whoami
-      register: sudo_check
-      ignore_errors: true
-
-    - name: Результат проверки sudo
-      ansible.builtin.debug:
-        msg: >-
-          {% if sudo_check.rc == 0 %}
-          ✅ sudo доступ без пароля есть
-          {% else %}
-          ⚠️ sudo требует пароль или не настроен
-          {% endif %}
-
-    - name: 🔹 Проверка возможности собрать факты
+    - name: 🔹 Проверка, что Ansible может собирать факты
       ansible.builtin.setup:
-      register: facts
+      register: facts_result
       ignore_errors: true
 
-    - name: Результат сбора фактов
+    - name: Проверка фактов
       ansible.builtin.debug:
-        msg: >-
-          {% if facts.failed is defined and facts.failed %}
-          ⚠️ Не удалось собрать факты
-          {% else %}
-          ✅ Факты успешно собраны ({{ facts.ansible_facts['ansible_distribution'] }} {{ facts.ansible_facts['ansible_distribution_version'] }})
-          {% endif %}
-
-    - name: 🔹 Проверка доступа в интернет (ping 8.8.8.8)
-      ansible.builtin.shell: ping -c 1 8.8.8.8
-      register: ping_test
-      ignore_errors: true
-
-    - name: Результат проверки интернета
-      ansible.builtin.debug:
-        msg: >-
-          {% if ping_test.rc == 0 %}
-          ✅ Интернет доступен
-          {% else %}
-          ⚠️ Интернет недоступен
-          {% endif %}
+        msg: >
+          {{ inventory_hostname }}:
+          OS={{ facts_result.ansible_facts['ansible_distribution'] | default('N/A') }}
+          Version={{ facts_result.ansible_facts['ansible_distribution_version'] | default('N/A') }}
+          IP={{ facts_result.ansible_facts['ansible_default_ipv4']['address'] | default('N/A') }}
+      when: facts_result is defined
 

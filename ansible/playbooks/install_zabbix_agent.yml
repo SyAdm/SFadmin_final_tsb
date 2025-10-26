@@ -1,9 +1,7 @@
 ---
 - name: Install and configure Zabbix agent
-  hosts: "{{target_hosts}}"
-  become: true
-  gather_facts: true
-
+  hosts: "{{ target_hosts }}"
+  become: yes
   roles:
     - zabbix-agent
 

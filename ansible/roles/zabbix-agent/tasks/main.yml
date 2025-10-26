@@ -1,0 +1,66 @@
+---
+# Установка и настройка Zabbix Agent (v1 или v2)
+
+- name: 🧩 Install Zabbix agent
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+    - zabbix-agent
+    - zabbix-agent2
+  ignore_errors: yes
+
+- name: ⚙️ Ensure /etc/zabbix directory exists
+  file:
+    path: /etc/zabbix
+    state: directory
+    mode: '0755'
+
+- name: ⚙️ Create config if missing
+  copy:
+    dest: /etc/zabbix/zabbix_agentd.conf
+    content: |
+      Server={{ zabbix_server_ip }}
+      Hostname={{ inventory_hostname }}
+  when: not ansible_check_mode
+
+- name: ⚙️ Configure zabbix_agentd.conf
+  lineinfile:
+    path: /etc/zabbix/zabbix_agentd.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  loop:
+    - { regexp: '^Server=', line: "Server={{ zabbix_server_ip }}" }
+    - { regexp: '^Hostname=', line: "Hostname={{ inventory_hostname }}" }
+  notify: Restart Zabbix Agent
+  ignore_errors: yes
+
+- name: 🧠 Detect which Zabbix Agent service is installed
+  shell: |
+    if systemctl list-unit-files | grep -q zabbix-agent2; then
+      echo "zabbix-agent2"
+    elif systemctl list-unit-files | grep -q zabbix-agent; then
+      echo "zabbix-agent"
+    else
+      echo "none"
+    fi
+  register: zabbix_service_detect
+  changed_when: false
+  when: not ansible_check_mode
+
+- name: 🪶 Debug which Zabbix service was detected
+  debug:
+    msg: "Detected service: {{ zabbix_service_detect.stdout | default('undefined') }}"
+
+- name: 🚀 Ensure Zabbix Agent service is started and enabled
+  systemd:
+    name: "{{ zabbix_service_detect.stdout }}"
+    state: started
+    enabled: true
+  when:
+    - not ansible_check_mode
+    - zabbix_service_detect.stdout is defined
+    - zabbix_service_detect.stdout != "none"
+

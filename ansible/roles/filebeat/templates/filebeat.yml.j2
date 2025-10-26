@@ -1,0 +1,28 @@
+# roles/filebeat/templates/filebeat.yml.j2
+
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/*.log
+
+# Output to console (for debugging)
+# output.console:
+#   enabled: true
+
+# Example output to Elasticsearch (uncomment and configure if needed)
+# output.elasticsearch:
+#   hosts: ["{{ elastic_host | default('localhost:9200') }}"]
+#   username: "{{ elastic_user | default('elastic') }}"
+#   password: "{{ elastic_pass | default('changeme') }}"
+
+# Optional logging
+logging:
+  level: info
+  to_files: true
+  files:
+    path: /var/log/filebeat
+    name: filebeat
+    keepfiles: 7
+    permissions: 0644
+

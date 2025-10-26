@@ -1,4 +1,32 @@
 ---
+# roles/filebeat/tasks/main.yml
+
+- name: Ensure apt transport and prerequisites are installed
+  apt:
+    name:
+      - apt-transport-https
+      - curl
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Add Elastic GPG key
+  ansible.builtin.apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+  become: true
+
+- name: Add Elastic repository
+  ansible.builtin.apt_repository:
+    repo: "deb https://artifacts.elastic.co/packages/8.x/apt stable main"
+    state: present
+  become: true
+
+- name: Update apt cache after adding Elastic repo
+  apt:
+    update_cache: yes
+  become: true
+
 - name: Install Filebeat
   apt:
     name: filebeat
@@ -9,7 +37,11 @@
   template:
     src: filebeat.yml.j2
     dest: /etc/filebeat/filebeat.yml
+    owner: root
+    group: root
+    mode: '0644'
   become: true
+  notify: Restart Filebeat
 
 - name: Enable and start Filebeat
   service:

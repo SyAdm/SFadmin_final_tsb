@@ -1,6 +1,8 @@
 ---
+# playbooks/install_filebeat.yml
+
 - name: Install and configure Filebeat
-  hosts: "{{target_hosts}}"
+  hosts: "{{ target_hosts }}"
   become: true
   gather_facts: true
 

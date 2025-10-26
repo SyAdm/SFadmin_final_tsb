@@ -1,60 +1,35 @@
 ---
-# 1️⃣ Проверка порта 80
 - name: Check if port 80 is in use
-  shell: "lsof -i :80 | grep LISTEN"
-  register: port_check
+  command: ss -tln | grep ':80 '
+  register: netstat_result
+  failed_when: false
+  changed_when: false
   ignore_errors: true
 
 - name: Set Apache port
   set_fact:
-    apache_port: "{{ 80 if port_check.stdout == '' else 8080 }}"
+    apache_port: "{{ '8080' if (netstat_result.stdout is defined and netstat_result.stdout | length > 0) else '80' }}"
 
-# 2️⃣ Создать отдельную папку для Apache
-- name: Ensure Apache web root exists
-  file:
-    path: /var/www/apache
-    state: directory
-    owner: www-data
-    group: www-data
-    mode: '0755'
-  become: true
-
-# 3️⃣ Установка Apache и PHP
 - name: Install Apache
   apt:
     name: apache2
     state: present
-    update_cache: yes
   become: true
 
-# 4️⃣ Настройка порта Apache
 - name: Configure Apache to listen on chosen port
   lineinfile:
     path: /etc/apache2/ports.conf
-    regexp: '^Listen '
+    regexp: '^Listen'
     line: "Listen {{ apache_port }}"
   notify: Restart Apache
   become: true
 
-# 5️⃣ Настройка DocumentRoot
-- name: Configure Apache VirtualHost
-  copy:
-    dest: /etc/apache2/sites-available/000-default.conf
-    content: |
-      <VirtualHost *:{{ apache_port }}>
-          DocumentRoot /var/www/apache
-      </VirtualHost>
-  notify: Restart Apache
-  become: true
-
-# 6️⃣ Деплой index.html для Apache
-- name: Deploy custom index.html for Apache
+- name: Deploy custom index.html
   template:
     src: index.html.j2
-    dest: /var/www/apache/index.html
+    dest: /var/www/html/index.html
   become: true
 
-# 7️⃣ Убедиться, что Apache запущен
 - name: Ensure Apache is started and enabled
   service:
     name: apache2

@@ -1,0 +1,9 @@
+---
+# roles/filebeat/handlers/main.yml
+
+- name: Restart Filebeat
+  service:
+    name: filebeat
+    state: restarted
+  become: true
+
