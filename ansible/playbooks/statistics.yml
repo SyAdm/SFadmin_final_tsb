@@ -1,0 +1,32 @@
+# playbooks/statistics.yml
+---
+- import_playbook: install_apache.yml
+- import_playbook: install_nginx.yml
+- import_playbook: install_filebeat.yml
+- import_playbook: install_zabbix_agent.yml
+- import_playbook: install_php.yml
+
+- name: 🎯 DEPLOYMENT COMPLETE - SUMMARY
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Show simple summary
+      debug:
+        msg: |
+          ✅ ALL PLAYBOOKS EXECUTED SUCCESSFULLY!
+          
+          📋 Executed playbooks (5):
+          • install_apache.yml
+          • install_nginx.yml  
+          • install_filebeat.yml
+          • install_zabbix_agent.yml
+          • install_php.yml
+          
+          🎯 Target group: {{ target_hosts }}
+          🖥️  Servers: {{ groups[target_hosts] | join(', ') }}
+          
+          📦 Deployed stack:
+          🌐 nginx + Apache
+          📊 Zabbix monitoring
+          📝 Filebeat logging
+          🐘 PHP backend
