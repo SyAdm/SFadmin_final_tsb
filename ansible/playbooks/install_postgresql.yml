@@ -1,7 +1,63 @@
+# playbooks/install_postgresql.yml
 ---
 - name: Install and configure PostgreSQL
-  hosts: "{{ target_hosts | default('db') }}"
-  become: yes
+  hosts: "{{ target_hosts | default('postgresql') }}"
+  become: true
+  gather_facts: true
+
+  vars:
+    postgresql_port: 5432
+    postgresql_listen_addresses: "localhost"
+    postgresql_postgres_password: "postgres123"  # Пароль для пользователя postgres
+    
+    # Example databases and users
+    postgresql_databases:
+      - name: myapp
+        encoding: UTF-8
+        owner: postgres
+      - name: testdb
+        encoding: UTF-8
+
+    postgresql_users:
+      - name: myuser
+        password: "mysecurepassword123"
+        role_attr_flags: "LOGIN"
+
   roles:
     - postgresql
 
+- name: 🎯 POSTGRESQL INSTALLATION SUMMARY
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Show PostgreSQL deployment report
+      debug:
+        msg: |
+          
+          ============================================
+          🐘 POSTGRESQL DEPLOYMENT COMPLETE
+          ============================================
+          
+          📊 DEPLOYMENT INFO:
+          • Target: {{ target_hosts | default('postgresql') }}
+          • Server: {{ groups[target_hosts | default('postgresql')][0] }}
+          • Port: 5432
+          
+          🗃️  DATABASES CREATED:
+          {% for db in postgresql_databases %}
+          • {{ db.name }}{% endfor %}
+          
+          👥 USERS CREATED:
+          {% for user in postgresql_users %}
+          • {{ user.name }}{% endfor %}
+          
+          🔐 AUTHENTICATION:
+          • MD5 authentication enabled
+          • Password authentication ready
+          
+          🔗 CONNECTION EXAMPLES:
+          • psql -h {{ groups[target_hosts | default('postgresql')][0] }} -U postgres -W
+          • psql -h {{ groups[target_hosts | default('postgresql')][0] }} -U myuser -d myapp -W
+          
+          ⚡ VERIFICATION:
+          ansible {{ target_hosts | default('postgresql') }} -m shell -a "sudo -u postgres psql -c '\l'" -b

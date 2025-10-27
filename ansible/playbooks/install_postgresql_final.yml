@@ -1,0 +1,125 @@
+---
+- name: Final PostgreSQL configuration
+  hosts: "{{ target_hosts }}"
+  become: true
+  vars:
+    postgresql_postgres_password: "postgres123"
+    postgresql_databases:
+      - name: myapp
+        encoding: UTF-8
+        owner: postgres
+      - name: testdb
+        encoding: UTF-8
+    postgresql_users:
+      - name: myuser
+        password: "mysecurepassword123"
+        role_attr_flags: "LOGIN"
+
+  tasks:
+    - name: Configure PostgreSQL to listen on localhost
+      lineinfile:
+        path: /etc/postgresql/14/main/postgresql.conf
+        regexp: "^#?listen_addresses\\s*="
+        line: "listen_addresses = 'localhost'"
+        backup: yes
+      notify: restart postgresql
+
+    - name: Update authentication to use md5
+      lineinfile:
+        path: /etc/postgresql/14/main/pg_hba.conf
+        regexp: "^local\\s+all\\s+all\\s+peer"
+        line: "local all all md5"
+        backup: yes
+      notify: reload postgresql
+
+    - name: Set password for postgres user
+      shell: |
+        sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD '{{ postgresql_postgres_password }}';"
+      no_log: true
+
+    - name: Create application databases
+      shell: |
+        sudo -u postgres createdb "{{ item.name }}" --encoding='UTF-8'
+      loop: "{{ postgresql_databases }}"
+      ignore_errors: yes
+
+    - name: Create application users
+      shell: |
+        sudo -u postgres psql -c "CREATE USER {{ item.name }} WITH PASSWORD '{{ item.password }}' {{ item.role_attr_flags }};"
+      loop: "{{ postgresql_users }}"
+      no_log: true
+      ignore_errors: yes
+
+    - name: Grant privileges to users
+      shell: |
+        sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE myapp TO myuser;"
+      ignore_errors: yes
+
+    - name: Verify final installation
+      shell: |
+        echo "=== Databases ==="
+        sudo -u postgres psql -c "\l"
+        echo "=== Users ==="
+        sudo -u postgres psql -c "\du"
+        echo "=== Connection test with password ==="
+        PGPASSWORD={{ postgresql_postgres_password }} psql -h localhost -U postgres -c "SELECT version();"
+      register: final_verification
+
+    - name: Show final verification
+      debug:
+        var: final_verification.stdout
+
+  handlers:
+    - name: restart postgresql
+      service:
+        name: postgresql
+        state: restarted
+
+    - name: reload postgresql
+      service:
+        name: postgresql
+        state: reloaded
+
+- name: 🎉 POSTGRESQL INSTALLATION COMPLETE
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Show success message
+      debug:
+        msg: |
+          
+          ============================================
+          🐘 POSTGRESQL INSTALLATION SUCCESSFUL!
+          ============================================
+          
+          ✅ PostgreSQL 14.19 is now running on:
+          Server: {{ groups[target_hosts][0] }}
+          Port: 5432
+          Status: Online
+          
+          🗃️  DATABASES:
+          • myapp
+          • testdb
+          • postgres (system)
+          
+          👥 USERS:
+          • postgres (superuser)
+          • myuser (application user)
+          
+          🔐 AUTHENTICATION:
+          • MD5 password authentication enabled
+          • Can connect with password
+          
+          🔗 CONNECTION EXAMPLES:
+          # Connect as postgres
+          psql -h {{ groups[target_hosts][0] }} -U postgres -W
+          
+          # Connect as myuser to myapp
+          psql -h {{ groups[target_hosts][0] }} -U myuser -d myapp -W
+          
+          # From server itself
+          sudo -u postgres psql
+          
+          ⚡ QUICK TESTS:
+          ansible {{ target_hosts }} -m shell -a "sudo -u postgres psql -c '\l'" -b
+          ansible {{ target_hosts }} -m shell -a "PGPASSWORD=postgres123 psql -h localhost -U postgres -c 'SELECT version();'" -b

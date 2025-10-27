@@ -1,84 +1,162 @@
 ---
-# roles/postgresql/tasks/main.yml
-
-- name: Gather facts
-  ansible.builtin.setup:
-
-# 🧩 Устанавливаем PostgreSQL и зависимости
-- name: Install PostgreSQL and dependencies
-  ansible.builtin.apt:
+- name: Install PostgreSQL prerequisites
+  apt:
     name:
-      - postgresql
-      - postgresql-contrib
+      - gnupg
+      - wget
+      - curl
+      - software-properties-common
     state: present
     update_cache: yes
 
-# 🔍 Определяем имя сервиса PostgreSQL
-- name: Detect installed PostgreSQL service name
-  ansible.builtin.shell: "systemctl list-units --type=service | grep postgresql | awk '{print $1}' | head -n1"
-  register: pg_service_name_raw
-  changed_when: false
-  failed_when: false
+- name: Install PostgreSQL from Ubuntu repositories
+  apt:
+    name:
+      - postgresql
+      - postgresql-contrib
+      - libpq-dev
+      - python3-psycopg2
+    state: present
+    update_cache: yes
 
-# ⚠️ Устанавливаем корректный факт с именем службы
-- name: Set pg_service_name fact
-  ansible.builtin.set_fact:
-    pg_service_name: "{{ pg_service_name_raw.stdout | default('postgresql') }}"
-
-# 🚀 Запускаем и включаем службу PostgreSQL
 - name: Ensure PostgreSQL service is started and enabled
-  ansible.builtin.service:
-    name: "{{ pg_service_name }}"
+  service:
+    name: "postgresql"
     state: started
     enabled: yes
 
-# ⚙️ Создаем нужные директории
-- name: Ensure /var/lib/postgresql and /etc/postgresql exist
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    owner: postgres
-    group: postgres
-    mode: '0755'
-  loop:
-    - /var/lib/postgresql
-    - /etc/postgresql
+- name: Wait for PostgreSQL to initialize
+  pause:
+    seconds: 3
 
-# 🔍 Проверяем, существует ли системный пользователь postgres
-- name: Check if system postgres user exists
-  ansible.builtin.getent:
-    database: passwd
-    key: postgres
-  register: postgres_user_check
+- name: Find PostgreSQL main version directory
+  shell: |
+    find /etc/postgresql -maxdepth 1 -type d -name "*" | sort -r | head -1
+  register: postgresql_main_dir
+  changed_when: false
+
+- name: Set PostgreSQL main directory
+  set_fact:
+    postgresql_main_dir: "{{ postgresql_main_dir.stdout }}"
+
+- name: Find postgresql.conf in main directory
+  find:
+    paths: "{{ postgresql_main_dir }}"
+    patterns: "postgresql.conf"
+    file_type: file
+    recurse: yes
+  register: postgresql_conf_files
+
+- name: Find pg_hba.conf in main directory
+  find:
+    paths: "{{ postgresql_main_dir }}"
+    patterns: "pg_hba.conf"
+    file_type: file
+    recurse: yes
+  register: postgresql_hba_files
+
+- name: Set PostgreSQL config paths
+  set_fact:
+    postgresql_config_file: "{{ postgresql_conf_files.files[0].path if postgresql_conf_files.files else '' }}"
+    postgresql_hba_file: "{{ postgresql_hba_files.files[0].path if postgresql_hba_files.files else '' }}"
+
+- name: Debug PostgreSQL paths
+  debug:
+    msg: |
+      Main dir: {{ postgresql_main_dir }}
+      Config file: {{ postgresql_config_file }}
+      HBA file: {{ postgresql_hba_file }}
+
+- name: Configure PostgreSQL listen addresses
+  lineinfile:
+    path: "{{ postgresql_config_file }}"
+    regexp: "^#?listen_addresses\\s*="
+    line: "listen_addresses = '{{ postgresql_listen_addresses }}'"
+    backup: yes
+  notify: restart postgresql
+
+- name: Configure PostgreSQL port
+  lineinfile:
+    path: "{{ postgresql_config_file }}"
+    regexp: "^#?port\\s*="
+    line: "port = {{ postgresql_port }}"
+    backup: yes
+  notify: restart postgresql
+
+- name: Update PostgreSQL authentication to use md5 for local connections
+  lineinfile:
+    path: "{{ postgresql_hba_file }}"
+    regexp: "^local\\s+all\\s+postgres\\s+peer"
+    line: "local   all             postgres                                md5"
+    backup: yes
+  notify: reload postgresql
+
+- name: Ensure md5 authentication for all local users
+  lineinfile:
+    path: "{{ postgresql_hba_file }}"
+    regexp: "^local\\s+all\\s+all\\s+peer"
+    line: "local   all             all                                     md5"
+    backup: yes
+  notify: reload postgresql
+
+- name: Reload PostgreSQL to apply HBA changes
+  service:
+    name: postgresql
+    state: reloaded
+
+- name: Wait for PostgreSQL to be ready after reload
+  pause:
+    seconds: 2
+
+- name: Set password for postgres user using shell command
+  shell: |
+    sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD '{{ postgresql_postgres_password }}';"
+  args:
+    executable: /bin/bash
+  no_log: true
+
+- name: Create PostgreSQL databases using shell (more reliable)
+  shell: |
+    sudo -u postgres createdb "{{ item.name }}" --encoding='{{ item.encoding | default("UTF-8") }}' --owner='{{ item.owner | default("postgres") }}'
+  loop: "{{ postgresql_databases }}"
+  when: postgresql_databases | length > 0
   ignore_errors: yes
 
-# 👤 Создаем системного пользователя postgres если его нет
-- name: Ensure system postgres user exists
-  ansible.builtin.user:
-    name: postgres
-    shell: /bin/bash
-    create_home: yes
-  when: postgres_user_check.failed
+- name: Create PostgreSQL users using shell
+  shell: |
+    sudo -u postgres psql -c "CREATE USER {{ item.name }} WITH PASSWORD '{{ item.password }}' {{ item.role_attr_flags | default('LOGIN') }};"
+  loop: "{{ postgresql_users }}"
+  when: postgresql_users | length > 0
+  no_log: true
+  ignore_errors: yes
 
-# 👤 Создаем PostgreSQL пользователя
-- name: Ensure PostgreSQL user exists
-  community.postgresql.postgresql_user:
-    name: "{{ pg_user }}"
-    password: "{{ pg_password }}"
-    state: present
-  become: yes
-  become_user: postgres
-  environment:
-    HOME: /var/lib/postgresql
+- name: Verify PostgreSQL installation
+  shell: |
+    sudo -u postgres psql -c "\l"
+  register: postgresql_databases_list
+  changed_when: false
 
-# 🗄 Создаем базу данных PostgreSQL
-- name: Ensure PostgreSQL database exists
-  community.postgresql.postgresql_db:
-    name: "{{ pg_database }}"
-    owner: "{{ pg_user }}"
-    state: present
-  become: yes
-  become_user: postgres
-  environment:
-    HOME: /var/lib/postgresql
-
+- name: Show PostgreSQL installation summary
+  debug:
+    msg: |
+      ✅ PostgreSQL installation completed!
+      
+      📊 Configuration:
+      • Config file: {{ postgresql_config_file }}
+      • HBA file: {{ postgresql_hba_file }}
+      • Port: {{ postgresql_port }}
+      • Listen addresses: {{ postgresql_listen_addresses }}
+      
+      🗃️  Available databases:
+      {{ postgresql_databases_list.stdout }}
+      
+      🔐 Authentication:
+      • MD5 authentication enabled
+      • Password set for postgres user
+      
+      🔗 Connection examples:
+      • psql -h localhost -U postgres
+      • psql -h localhost -U myuser -d myapp
+      
+      ⚡ Quick test:
+      sudo -u postgres psql -c "\l"

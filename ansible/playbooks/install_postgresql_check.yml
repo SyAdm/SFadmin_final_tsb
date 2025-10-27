@@ -1,0 +1,72 @@
+---
+- name: Reinstall PostgreSQL completely
+  hosts: "{{ target_hosts }}"
+  become: true
+  tasks:
+    - name: Stop PostgreSQL
+      service:
+        name: postgresql
+        state: stopped
+
+    - name: Remove PostgreSQL packages
+      apt:
+        name:
+          - postgresql*
+          - postgresql-*
+          - postgresql-contrib*
+        state: absent
+        purge: yes
+
+    - name: Remove PostgreSQL data and config
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/lib/postgresql
+        - /etc/postgresql
+        - /var/log/postgresql
+
+    - name: Clean up apt
+      apt:
+        autoclean: yes
+        autoremove: yes
+
+    - name: Reinstall PostgreSQL
+      apt:
+        name:
+          - postgresql
+          - postgresql-contrib
+        state: present
+        update_cache: yes
+
+    - name: Ensure PostgreSQL service is running
+      service:
+        name: postgresql
+        state: started
+        enabled: yes
+
+    - name: Wait for initialization
+      pause:
+        seconds: 5
+
+    - name: Check cluster status
+      shell: |
+        pg_lsclusters
+      register: cluster_status
+
+    - name: Show cluster status
+      debug:
+        var: cluster_status.stdout
+
+    - name: Create test database
+      shell: |
+        sudo -u postgres createdb testdb
+
+    - name: Test PostgreSQL
+      shell: |
+        sudo -u postgres psql -d testdb -c "SELECT version();"
+      register: postgres_version
+
+    - name: Show PostgreSQL version
+      debug:
+        var: postgres_version.stdout

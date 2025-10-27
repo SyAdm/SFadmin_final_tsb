@@ -1,0 +1,6 @@
+---
+- name: Install and configure Zabbix agent
+  hosts: "{{ target_hosts }}"
+  become: yes
+  roles:
+    - ELK
