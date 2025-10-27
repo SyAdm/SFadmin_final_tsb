@@ -1,0 +1,5 @@
+---
+pg_user: postgres
+pg_password: "postgres"
+pg_database: mydb
+

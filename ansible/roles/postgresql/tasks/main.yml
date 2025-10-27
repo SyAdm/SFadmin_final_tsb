@@ -1,0 +1,84 @@
+---
+# roles/postgresql/tasks/main.yml
+
+- name: Gather facts
+  ansible.builtin.setup:
+
+# 🧩 Устанавливаем PostgreSQL и зависимости
+- name: Install PostgreSQL and dependencies
+  ansible.builtin.apt:
+    name:
+      - postgresql
+      - postgresql-contrib
+    state: present
+    update_cache: yes
+
+# 🔍 Определяем имя сервиса PostgreSQL
+- name: Detect installed PostgreSQL service name
+  ansible.builtin.shell: "systemctl list-units --type=service | grep postgresql | awk '{print $1}' | head -n1"
+  register: pg_service_name_raw
+  changed_when: false
+  failed_when: false
+
+# ⚠️ Устанавливаем корректный факт с именем службы
+- name: Set pg_service_name fact
+  ansible.builtin.set_fact:
+    pg_service_name: "{{ pg_service_name_raw.stdout | default('postgresql') }}"
+
+# 🚀 Запускаем и включаем службу PostgreSQL
+- name: Ensure PostgreSQL service is started and enabled
+  ansible.builtin.service:
+    name: "{{ pg_service_name }}"
+    state: started
+    enabled: yes
+
+# ⚙️ Создаем нужные директории
+- name: Ensure /var/lib/postgresql and /etc/postgresql exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: '0755'
+  loop:
+    - /var/lib/postgresql
+    - /etc/postgresql
+
+# 🔍 Проверяем, существует ли системный пользователь postgres
+- name: Check if system postgres user exists
+  ansible.builtin.getent:
+    database: passwd
+    key: postgres
+  register: postgres_user_check
+  ignore_errors: yes
+
+# 👤 Создаем системного пользователя postgres если его нет
+- name: Ensure system postgres user exists
+  ansible.builtin.user:
+    name: postgres
+    shell: /bin/bash
+    create_home: yes
+  when: postgres_user_check.failed
+
+# 👤 Создаем PostgreSQL пользователя
+- name: Ensure PostgreSQL user exists
+  community.postgresql.postgresql_user:
+    name: "{{ pg_user }}"
+    password: "{{ pg_password }}"
+    state: present
+  become: yes
+  become_user: postgres
+  environment:
+    HOME: /var/lib/postgresql
+
+# 🗄 Создаем базу данных PostgreSQL
+- name: Ensure PostgreSQL database exists
+  community.postgresql.postgresql_db:
+    name: "{{ pg_database }}"
+    owner: "{{ pg_user }}"
+    state: present
+  become: yes
+  become_user: postgres
+  environment:
+    HOME: /var/lib/postgresql
+

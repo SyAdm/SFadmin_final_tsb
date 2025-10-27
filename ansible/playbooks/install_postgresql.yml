@@ -1,0 +1,7 @@
+---
+- name: Install and configure PostgreSQL
+  hosts: "{{ target_hosts | default('db') }}"
+  become: yes
+  roles:
+    - postgresql
+

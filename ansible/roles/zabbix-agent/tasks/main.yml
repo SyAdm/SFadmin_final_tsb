@@ -1,66 +1,80 @@
 ---
-# Установка и настройка Zabbix Agent (v1 или v2)
-
+# Установка Zabbix Agent
 - name: 🧩 Install Zabbix agent
   apt:
-    name: "{{ item }}"
+    name: zabbix-agent
     state: present
     update_cache: yes
-  loop:
-    - zabbix-agent
-    - zabbix-agent2
-  ignore_errors: yes
+  become: yes
 
+# Создание основной директории Zabbix
 - name: ⚙️ Ensure /etc/zabbix directory exists
   file:
     path: /etc/zabbix
     state: directory
+    owner: root
+    group: root
     mode: '0755'
 
-- name: ⚙️ Create config if missing
+# Создание директории для дополнительных конфигов
+- name: ⚙️ Ensure /etc/zabbix/zabbix_agentd.d directory exists
+  file:
+    path: /etc/zabbix/zabbix_agentd.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+# Создание основного конфига, если отсутствует
+- name: ⚙️ Create base zabbix_agentd.conf if missing
   copy:
     dest: /etc/zabbix/zabbix_agentd.conf
     content: |
-      Server={{ zabbix_server_ip }}
+      LogFile=/var/log/zabbix/zabbix_agentd.log
+      LogFileSize=0
+      Server=10.8.0.1
       Hostname={{ inventory_hostname }}
-  when: not ansible_check_mode
+      Include=/etc/zabbix/zabbix_agentd.d/*.conf
+    owner: root
+    group: root
+    mode: '0644'
+    force: no  # не перезаписывает, если файл уже есть
 
-- name: ⚙️ Configure zabbix_agentd.conf
+# Гарантия, что лог-директория существует
+- name: ⚙️ Ensure log directory exists
+  file:
+    path: /var/log/zabbix
+    state: directory
+    owner: zabbix
+    group: zabbix
+    mode: '0755'
+
+# Обновление ключевых параметров в конфиге (если уже существовал)
+- name: ⚙️ Update zabbix_agentd.conf parameters
   lineinfile:
     path: /etc/zabbix/zabbix_agentd.conf
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
-    state: present
   loop:
-    - { regexp: '^Server=', line: "Server={{ zabbix_server_ip }}" }
+    - { regexp: '^Server=', line: 'Server=10.8.0.1' }
     - { regexp: '^Hostname=', line: "Hostname={{ inventory_hostname }}" }
-  notify: Restart Zabbix Agent
-  ignore_errors: yes
+    - { regexp: '^LogFile=', line: 'LogFile=/var/log/zabbix/zabbix_agentd.log' }
 
+# Определение имени службы
 - name: 🧠 Detect which Zabbix Agent service is installed
-  shell: |
-    if systemctl list-unit-files | grep -q zabbix-agent2; then
-      echo "zabbix-agent2"
-    elif systemctl list-unit-files | grep -q zabbix-agent; then
-      echo "zabbix-agent"
-    else
-      echo "none"
-    fi
-  register: zabbix_service_detect
+  shell: systemctl list-unit-files | grep -E '^zabbix-agent[0-9]*\.service'
+  register: zabbix_service
   changed_when: false
-  when: not ansible_check_mode
 
 - name: 🪶 Debug which Zabbix service was detected
   debug:
-    msg: "Detected service: {{ zabbix_service_detect.stdout | default('undefined') }}"
+    msg: "Detected service: {{ zabbix_service.stdout | default('undefined') }}"
 
+# Запуск службы
 - name: 🚀 Ensure Zabbix Agent service is started and enabled
   systemd:
-    name: "{{ zabbix_service_detect.stdout }}"
+    name: "{{ (zabbix_service.stdout_lines | first | regex_search('^zabbix-agent[0-9]*')) | default('zabbix-agent') }}"
     state: started
-    enabled: true
-  when:
-    - not ansible_check_mode
-    - zabbix_service_detect.stdout is defined
-    - zabbix_service_detect.stdout != "none"
+    enabled: yes
+  become: yes
 

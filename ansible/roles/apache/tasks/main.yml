@@ -1,39 +1,70 @@
 ---
-- name: Check if port 80 is in use
-  command: ss -tln | grep ':80 '
-  register: netstat_result
-  failed_when: false
-  changed_when: false
-  ignore_errors: true
-
-- name: Set Apache port
+- name: Set Apache port to 8080
   set_fact:
-    apache_port: "{{ '8080' if (netstat_result.stdout is defined and netstat_result.stdout | length > 0) else '80' }}"
+    apache_port: "8080"
+
+- name: Show selected port
+  debug:
+    msg: "Apache will use port {{ apache_port }} (nginx uses port 80)"
 
 - name: Install Apache
   apt:
     name: apache2
     state: present
-  become: true
+    update_cache: yes
 
-- name: Configure Apache to listen on chosen port
+- name: Stop Apache if running (to avoid conflicts)
+  service:
+    name: apache2
+    state: stopped
+  ignore_errors: yes
+
+- name: Configure Apache to listen on port 8080
   lineinfile:
     path: /etc/apache2/ports.conf
     regexp: '^Listen'
-    line: "Listen {{ apache_port }}"
-  notify: Restart Apache
-  become: true
+    line: "Listen 8080"
+  notify: restart apache
 
-- name: Deploy custom index.html
-  template:
-    src: index.html.j2
+- name: Update default virtual host to port 8080
+  replace:
+    path: /etc/apache2/sites-available/000-default.conf
+    regexp: '<VirtualHost \\*:.*>'
+    replace: "<VirtualHost *:8080>"
+  notify: restart apache
+
+- name: Update enabled virtual host to port 8080
+  replace:
+    path: /etc/apache2/sites-enabled/000-default.conf
+    regexp: '<VirtualHost \\*:.*>'
+    replace: "<VirtualHost *:8080>"
+  notify: restart apache
+
+- name: Ensure default site is enabled
+  command: a2ensite 000-default.conf
+  ignore_errors: yes
+
+- name: Create custom index.html for Apache on port 8080
+  copy:
+    content: |
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <title>Apache on {{ inventory_hostname }}:8080</title>
+      </head>
+      <body>
+          <h1>Welcome to Apache on port 8080!</h1>
+          <p>Server: {{ inventory_hostname }}</p>
+          <p>Port: 8080</p>
+          <p>nginx is running on port 80</p>
+          <p>Deployed with Ansible</p>
+      </body>
+      </html>
     dest: /var/www/html/index.html
-  become: true
+    mode: '0644'
 
-- name: Ensure Apache is started and enabled
+- name: Ensure Apache is started and enabled on port 8080
   service:
     name: apache2
     state: started
-    enabled: true
-  become: true
-
+    enabled: yes
