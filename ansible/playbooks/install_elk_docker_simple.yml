@@ -1,0 +1,238 @@
+---
+- name: Deploy ELK stack in Docker (Simple version)
+  hosts: "{{ target_hosts }}"
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Check if Docker is installed
+      command: which docker
+      register: docker_check
+      ignore_errors: yes
+
+    - name: Install Docker if not present
+      block:
+        - name: Install Docker using official script
+          shell: |
+            curl -fsSL https://get.docker.com -o get-docker.sh
+            sh get-docker.sh
+          args:
+            executable: /bin/bash
+
+        - name: Add current user to docker group
+          user:
+            name: "{{ ansible_user }}"
+            groups: docker
+            append: yes
+
+        - name: Start Docker service
+          systemd:
+            name: docker
+            state: started
+            enabled: yes
+
+        - name: Wait for Docker to be ready
+          pause:
+            seconds: 10
+      when: docker_check.rc != 0
+
+    - name: Install Docker Compose plugin
+      apt:
+        name: docker-compose-plugin
+        state: present
+        update_cache: yes
+
+    - name: Create ELK directory structure
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+      loop:
+        - /opt/elk
+        - /opt/elk/elasticsearch/data
+        - /opt/elk/kibana/data
+
+    - name: Create Docker Compose file for ELK
+      copy:
+        content: |
+          version: '3.8'
+          services:
+            elasticsearch:
+              image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+              container_name: elasticsearch
+              environment:
+                - discovery.type=single-node
+                - xpack.security.enabled=false
+                - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+              volumes:
+                - ./elasticsearch/data:/usr/share/elasticsearch/data
+              ports:
+                - "9200:9200"
+              networks:
+                - elk
+              restart: unless-stopped
+
+            kibana:
+              image: docker.elastic.co/kibana/kibana:8.11.0
+              container_name: kibana
+              environment:
+                - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+              volumes:
+                - ./kibana/data:/usr/share/kibana/data
+              ports:
+                - "5601:5601"
+              networks:
+                - elk
+              depends_on:
+                - elasticsearch
+              restart: unless-stopped
+
+            logstash:
+              image: docker.elastic.co/logstash/logstash:8.11.0
+              container_name: logstash
+              environment:
+                - "LS_JAVA_OPTS=-Xms256m -Xmx256m"
+              volumes:
+                - ./logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+              ports:
+                - "5044:5044"
+                - "5000:5000"
+              networks:
+                - elk
+              depends_on:
+                - elasticsearch
+              restart: unless-stopped
+
+          networks:
+            elk:
+              driver: bridge
+        dest: /opt/elk/docker-compose.yml
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0644'
+
+    - name: Create Logstash configuration
+      copy:
+        content: |
+          input {
+            beats {
+              port => 5044
+            }
+            tcp {
+              port => 5000
+              codec => json
+            }
+          }
+          output {
+            elasticsearch {
+              hosts => ["http://elasticsearch:9200"]
+              index => "logstash-%{+YYYY.MM.dd}"
+            }
+            stdout {
+              codec => rubydebug
+            }
+          }
+        dest: /opt/elk/logstash/pipeline/logstash.conf
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0644'
+
+    - name: Pull ELK Docker images
+      shell: |
+        cd /opt/elk && docker compose pull
+      args:
+        executable: /bin/bash
+
+    - name: Start ELK stack
+      shell: |
+        cd /opt/elk && docker compose up -d
+      args:
+        executable: /bin/bash
+
+    - name: Wait for ELK services to start
+      pause:
+        seconds: 30
+
+    - name: Check ELK containers status
+      shell: |
+        cd /opt/elk && docker compose ps
+      register: elk_containers
+      args:
+        executable: /bin/bash
+
+    - name: Show containers status
+      debug:
+        var: elk_containers.stdout
+
+    - name: Check Elasticsearch health
+      shell: |
+        curl -s http://localhost:9200 | head -10
+      register: es_health
+      args:
+        executable: /bin/bash
+
+    - name: Show Elasticsearch health
+      debug:
+        var: es_health.stdout
+
+    - name: Check if Kibana is accessible
+      shell: |
+        curl -s -I http://localhost:5601 | head -1
+      register: kibana_status
+      args:
+        executable: /bin/bash
+      ignore_errors: yes
+
+    - name: Show Kibana status
+      debug:
+        var: kibana_status.stdout
+
+- name: 🎯 ELK DOCKER DEPLOYMENT SUMMARY
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Show deployment report
+      debug:
+        msg: |
+          
+          ============================================
+          🐳 ELK STACK IN DOCKER - DEPLOYMENT COMPLETE
+          ============================================
+          
+          🎯 Target: {{ target_hosts }}
+          🖥️  Server: {{ groups[target_hosts][0] }}
+          
+          📦 Deployed Services (Docker):
+          • ✅ Elasticsearch 8.11.0 - port 9200
+          • ✅ Kibana 8.11.0 - port 5601  
+          • ✅ Logstash 8.11.0 - ports 5044, 5000
+          
+          🔗 Access URLs:
+          • Elasticsearch: http://{{ groups[target_hosts][0] }}:9200
+          • Kibana UI: http://{{ groups[target_hosts][0] }}:5601
+          
+          📁 Installation Directory: /opt/elk
+          
+          🛠️ Management Commands:
+          # Start/stop ELK
+          cd /opt/elk && docker compose up -d
+          cd /opt/elk && docker compose down
+          
+          # View status
+          cd /opt/elk && docker compose ps
+          
+          # View logs
+          cd /opt/elk && docker compose logs -f
+          
+          ⚡ Quick Tests:
+          curl http://{{ groups[target_hosts][0] }}:9200
+          curl -I http://{{ groups[target_hosts][0] }}:5601
+          
+          ansible {{ target_hosts }} -m shell -a "cd /opt/elk && docker compose ps" -b
+          
+          📝 Next Steps:
+          1. Open Kibana at http://{{ groups[target_hosts][0] }}:5601
+          2. Configure Filebeat to send logs to Logstash:5044
+          3. Set up index patterns in Kibana
