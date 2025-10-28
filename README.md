@@ -32,15 +32,15 @@
 - [x] filebeat (с помощью роли ansible)
 
 **Сервер 3:**  
-- [ ] PostgreSQL 12  
+- [x] PostgreSQL 12 (с помощью роли ansible)
 - [x] Zabbix-agent (с помощью роли ansible)
-- [ ] ELK (Elasticsearch, Logstash, Kibana)  
+- [x] ELK (Elasticsearch, Logstash, Kibana)  
 
 **Общее:**  
 - [x] Настроить OpenVPN-клиенты на сервере 2 и 3  
 - [x] Все роли вынести в GitHub  
 - [x] README с пометкой, что установлено вручную  
-- [ ] Проверить доступ извне: Zabbix, Grafana, Kibana, nginx  
+- [x] Проверить доступ извне: Zabbix, Grafana, Kibana, nginx  
 
 ---
 
@@ -50,9 +50,9 @@
 - [ ] Zabbix мониторит PostgreSQL  
 - [ ] Zabbix мониторит ELK  
 - [x] Зарегистрировать бесплатный домен - имеется купленный личный домен tusher.ru, NS завернут на [cloudflare.com](https://dash.cloudflare.com/)
-- [ ] Настроить bind (DNS-сервер)  
+- [x] Настроить bind (DNS-сервер) - не разворачивал, так как есть купленный личный домен tusher.ru, NS завернут на [cloudflare.com](https://dash.cloudflare.com/)
 - [ ] Прописать A/NS/MX-записи  
-- [ ] Проверить резолвинг серверов по именам  
+- [x] Проверить резолвинг серверов по именам  
 - [ ] Filebeat отправляет логи nginx/apache → ELK  
 - [ ] Проверить логи в Kibana  
 - [ ] Настроить почту (Postfix)  
@@ -70,7 +70,7 @@
 ## ✅ Часть 3 — Финал + Docker + Визитка
 - [ ] Перенести Zabbix-server в Docker  
 - [ ] Перенести Grafana в Docker  
-- [ ] Перенести ELK в Docker  
+- [x] Перенести ELK в Docker  
 - [ ] Поднять CMS (WordPress или другая) на nginx  
 - [ ] Создать сайт-визитку: о себе + описание проекта  
 - [ ] Настроить форму обратной связи (через Postfix)  
