@@ -106,8 +106,8 @@
 ## 📂 Структура репозитория
 
 ansible/
-├── hosts.ini # Inventory
-├── site.yml # Общий запуск
+- ├── hosts.ini # Inventory
+- ├── site.yml # Общий запуск
 ├── README.md # Документация
 ├── playbooks
 └── roles
