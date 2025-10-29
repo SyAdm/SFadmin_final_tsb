@@ -24,17 +24,17 @@
 
 **Сервер 2:**  
 - [x] [nginx](ansible/playbooks/install_nginx.yml) (с помощью [роли](ansible/roles/nginx) ansible)
-- [x] Apache (с помощью роли ansible)
-- [x] PHP (с помощью роли ansible)
-- [x] Zabbix-agent (с помощью роли ansible)
+- [x] [Apache](ansible/playbooks/install_apache.yml) (с помощью [роли](ansible/roles/apache) ansible)
+- [x] [PHP](ansible/playbooks/install_php.yml) (с помощью [роли](ansible/roles/php/tasks) ansible)
+- [x] [Zabbix-agent](ansible/playbooks/install_zabbix_agent.yml) (с помощью [роли](ansible/roles/zabbix-agent) ansible)
 - [x] bind (DNS) - не разворачивал, так как есть купленный личный домен tusher.ru, NS завернут на [cloudflare.com](https://dash.cloudflare.com/)
 - [x] Почтовый сервер (Postfix/Exim) (развернут руками, без ролей)
-- [x] filebeat (с помощью роли ansible)
+- [x] [filebeat](ansible/playbooks/install_filebeat.yml) (с помощью [роли](ansible/roles/filebeat) ansible)
 
 **Сервер 3:**  
-- [x] PostgreSQL 12 (с помощью роли ansible)
-- [x] Zabbix-agent (с помощью роли ansible)
-- [x] ELK (Elasticsearch, Logstash, Kibana)  
+- [x] [PostgreSQL 14](ansible/playbooks/install_postgresql_final.yml) (с помощью [роли](ansible/roles/postgresql) ansible)
+- [x] [Zabbix-agent](ansible/playbooks/install_zabbix_agent.yml) (с помощью [роли](ansible/roles/zabbix-agent) ansible)
+- [x] [ELK](ansible/playbooks/install_elk_docker_simple.yml) (Elasticsearch, Logstash, Kibana)  (с помощью [роли](ansible/roles/elk_docker) ansible)
 
 **Общее:**  
 - [x] Настроить OpenVPN-клиенты на сервере 2 и 3  
