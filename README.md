@@ -105,9 +105,46 @@
 
 ## 📂 Структура репозитория
 
-ansible-infra/
-├── roles/ # Ansible роли
-├── playbooks/ # Плейбуки
+ansible/
 ├── hosts.ini # Inventory
 ├── site.yml # Общий запуск
 ├── README.md # Документация
+├── playbooks
+└── roles
+    ├── apache
+    │   ├── handlers
+    │   ├── tasks
+    │   └── templates
+    ├── docker
+    │   ├── defaults
+    │   ├── handlers
+    │   └── tasks
+    ├── elk_docker
+    │   ├── files
+    │   ├── handlers
+    │   ├── tasks
+    │   └── templates
+    ├── filebeat
+    │   ├── handlers
+    │   ├── tasks
+    │   └── templates
+    ├── mailserver
+    ├── nginx
+    │   ├── tasks
+    │   └── templates
+    ├── openvpn_client
+    ├── php
+    │   ├── tasks
+    │   └── templates
+    ├── postgresql
+    │   ├── defaults
+    │   ├── files
+    │   ├── handlers
+    │   ├── tasks
+    │   └── templates
+    └── zabbix-agent
+        ├── defaults
+        ├── tasks
+        └── template
+
+37 directories
