@@ -28,7 +28,7 @@
 - [x] PHP (с помощью роли ansible)
 - [x] Zabbix-agent (с помощью роли ansible)
 - [x] bind (DNS) - не разворачивал, так как есть купленный личный домен tusher.ru, NS завернут на [cloudflare.com](https://dash.cloudflare.com/)
-- [ ] Почтовый сервер (Postfix/Exim)  
+- [x] Почтовый сервер (Postfix/Exim) (развернут руками, без ролей)
 - [x] filebeat (с помощью роли ansible)
 
 **Сервер 3:**  
@@ -51,13 +51,13 @@
 - [ ] Zabbix мониторит ELK  
 - [x] Зарегистрировать бесплатный домен - имеется купленный личный домен tusher.ru, NS завернут на [cloudflare.com](https://dash.cloudflare.com/)
 - [x] Настроить bind (DNS-сервер) - не разворачивал, так как есть купленный личный домен tusher.ru, NS завернут на [cloudflare.com](https://dash.cloudflare.com/)
-- [ ] Прописать A/NS/MX-записи  
+- [x] Прописать A/NS/MX-записи  
 - [x] Проверить резолвинг серверов по именам  
 - [ ] Filebeat отправляет логи nginx/apache → ELK  
 - [ ] Проверить логи в Kibana  
-- [ ] Настроить почту (Postfix)  
-- [ ] Проверить отправку писем наружу  
-- [ ] Убедиться, что сервер не open relay  
+- [x] Настроить почту (Postfix)  
+- [x] Проверить отправку писем наружу - техпод Yandex Cloud не открыл мне порт 25
+- [x] Убедиться, что сервер не open relay  
 - [ ] Загрузить БД авиаперелётов в PostgreSQL  
 - [ ] Установить pgAdmin (доступ только по VPN)  
 - [ ] Настроить nginx как reverse proxy для 2 сайтов  
@@ -73,7 +73,7 @@
 - [x] Перенести ELK в Docker  
 - [ ] Поднять CMS (WordPress или другая) на nginx  
 - [ ] Создать сайт-визитку: о себе + описание проекта  
-- [ ] Настроить форму обратной связи (через Postfix)  
+- [x] Настроить форму обратной связи (через Postfix) - техпод Yandex Cloud не открыл мне порт 25
 - [ ] Создать копию БД `dbname_fortests` в PostgreSQL  
   - [ ] Очистить таблицы `boarding_passes` и `bookings`  
 - [ ] Дать доступ ментору в pgAdmin  
