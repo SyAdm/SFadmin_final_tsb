@@ -45,7 +45,7 @@
 ---
 
 ## ✅ Часть 2 — Настройка сервисов
-- [ ] Настроить локальное время (chrony/ntp)  
+- [x] Настроить локальное время (chrony/ntp)  
 - [x] Zabbix мониторит все сервера (Linux template)  
 - [ ] Zabbix мониторит PostgreSQL  
 - [ ] Zabbix мониторит ELK  
@@ -68,8 +68,8 @@
 ---
 
 ## ✅ Часть 3 — Финал + Docker + Визитка
-- [ ] Перенести Zabbix-server в Docker  
-- [ ] Перенести Grafana в Docker  
+- [x] Перенести Zabbix-server в Docker  
+- [x] Перенести Grafana в Docker  
 - [x] Перенести ELK в Docker  
 - [ ] Поднять CMS (WordPress или другая) на nginx  
 - [ ] Создать сайт-визитку: о себе + описание проекта  
