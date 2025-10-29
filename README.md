@@ -23,7 +23,7 @@
 - [x] Клонировать GitHub-репозиторий
 
 **Сервер 2:**  
-- [x] nginx (с помощью роли ansible)
+- [x] [nginx](ansible/playbooks/install_nginx.yml) (с помощью [роли](ansible/roles/nginx) ansible)
 - [x] Apache (с помощью роли ansible)
 - [x] PHP (с помощью роли ansible)
 - [x] Zabbix-agent (с помощью роли ansible)
