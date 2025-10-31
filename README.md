@@ -63,7 +63,7 @@
 - [ ] Настроить nginx как reverse proxy для 2 сайтов  
   - [ ] Сайт заказчика (форма обратной связи + SSL, порт 443)  
   - [ ] Второй сайт (CMS или статический контент)  
-- [ ] Создать Grafana dashboard: CPU, RAM, Disk usage всех хостов  
+- [x] Создать Grafana dashboard: CPU, RAM, Disk usage всех хостов  
 
 ---
 
