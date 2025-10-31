@@ -47,14 +47,14 @@
 ## ✅ Часть 2 — Настройка сервисов
 - [x] Настроить локальное время (chrony/ntp)  
 - [x] Zabbix мониторит все сервера (Linux template)  
-- [ ] Zabbix мониторит PostgreSQL  
-- [ ] Zabbix мониторит ELK  
+- [x] Zabbix мониторит PostgreSQL  
+- [x] Zabbix мониторит ELK  
 - [x] Зарегистрировать бесплатный домен - имеется купленный личный домен tusher.ru, NS завернут на [cloudflare.com](https://dash.cloudflare.com/)
 - [x] Настроить bind (DNS-сервер) - не разворачивал, так как есть купленный личный домен tusher.ru, NS завернут на [cloudflare.com](https://dash.cloudflare.com/)
 - [x] Прописать A/NS/MX-записи  
 - [x] Проверить резолвинг серверов по именам  
-- [ ] Filebeat отправляет логи nginx/apache → ELK  
-- [ ] Проверить логи в Kibana  
+- [x] Filebeat отправляет логи nginx/apache → ELK  
+- [x] Проверить логи в Kibana  
 - [x] Настроить почту (Postfix)  
 - [x] Проверить отправку писем наружу - техпод Yandex Cloud не открыл мне порт 25
 - [x] Убедиться, что сервер не open relay  
