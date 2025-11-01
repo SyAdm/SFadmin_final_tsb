@@ -58,11 +58,11 @@
 - [x] Настроить почту (Postfix)  
 - [x] Проверить отправку писем наружу - техпод Yandex Cloud не открыл мне порт 25
 - [x] Убедиться, что сервер не open relay  
-- [ ] Загрузить БД авиаперелётов в PostgreSQL  
-- [ ] Установить pgAdmin (доступ только по VPN)  
-- [ ] Настроить nginx как reverse proxy для 2 сайтов  
-  - [ ] Сайт заказчика (форма обратной связи + SSL, порт 443)  
-  - [ ] Второй сайт (CMS или статический контент)  
+- [x] Загрузить БД авиаперелётов в PostgreSQL  
+- [x] Установить pgAdmin (доступ только по VPN)  
+- [x] Настроить nginx как reverse proxy для 2 сайтов  
+  - [x] Сайт заказчика (форма обратной связи + SSL, порт 443)  
+  - [x] Второй сайт (CMS или статический контент)  
 - [x] Создать Grafana dashboard: CPU, RAM, Disk usage всех хостов  
 
 ---
@@ -71,19 +71,21 @@
 - [x] Перенести Zabbix-server в Docker  
 - [x] Перенести Grafana в Docker  
 - [x] Перенести ELK в Docker  
-- [ ] Поднять CMS (WordPress или другая) на nginx  
+- [x] Поднять CMS (WordPress или другая) на nginx  
 - [ ] Создать сайт-визитку: о себе + описание проекта  
 - [x] Настроить форму обратной связи (через Postfix) - техпод Yandex Cloud не открыл мне порт 25
-- [ ] Создать копию БД `dbname_fortests` в PostgreSQL  
-  - [ ] Очистить таблицы `boarding_passes` и `bookings`  
-- [ ] Дать доступ ментору в pgAdmin  
-- [ ] Проверить, что filebeat и zabbix-agent работают  
+- [x] Создать копию БД `dbname_fortests` в PostgreSQL  
+  - [x] Очистить таблицы `boarding_passes` и `bookings`  
+- [x] Дать доступ ментору в pgAdmin  
+- [x] Проверить, что filebeat и zabbix-agent работают  
 - [ ] Сделать скриншоты контейнеров (Zabbix, Grafana, ELK)  
 - [ ] Проверить доступность всех сервисов по доменам:  
-  - [ ] `zabbix.mydomain.com`  
-  - [ ] `grafana.mydomain.com`  
-  - [ ] `kibana.mydomain.com`  
-  - [ ] `resume.mydomain.com` (CMS-визитка)  
+  - [ ] `zabbix.tusher.ru`  
+  - [ ] `grafana.tusher.ru`  
+  - [ ] `kibana.tusher.ru`  
+  - [ ] `customer.tusher.ru` (CMS-визитка)
+  - [ ] `pgadmin.tusher.ru`
+  - [ ] `feedback.tusher.ru`  
 
 ---
 
