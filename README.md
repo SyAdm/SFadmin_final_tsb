@@ -72,20 +72,20 @@
 - [x] Перенести Grafana в Docker  
 - [x] Перенести ELK в Docker  
 - [x] Поднять CMS (WordPress или другая) на nginx  
-- [ ] Создать сайт-визитку: о себе + описание проекта  
+- [x] Создать сайт-визитку: о себе + описание проекта  
 - [x] Настроить форму обратной связи (через Postfix) - техпод Yandex Cloud не открыл мне порт 25
 - [x] Создать копию БД `dbname_fortests` в PostgreSQL  
   - [x] Очистить таблицы `boarding_passes` и `bookings`  
 - [x] Дать доступ ментору в pgAdmin  
 - [x] Проверить, что filebeat и zabbix-agent работают  
-- [ ] Сделать скриншоты контейнеров (Zabbix, Grafana, ELK)  
-- [ ] Проверить доступность всех сервисов по доменам:  
-  - [ ] `zabbix.tusher.ru`  
-  - [ ] `grafana.tusher.ru`  
-  - [ ] `kibana.tusher.ru`  
-  - [ ] `customer.tusher.ru` (CMS-визитка)
-  - [ ] `pgadmin.tusher.ru`
-  - [ ] `feedback.tusher.ru`  
+- [x] Сделать скриншоты контейнеров (Zabbix, Grafana, ELK)  
+- [x] Проверить доступность всех сервисов по доменам:  
+  - [x] `zabbix.tusher.ru`  
+  - [x] `grafana.tusher.ru`  
+  - [x] `kibana.tusher.ru`  
+  - [x] `customer.tusher.ru` (CMS-визитка)
+  - [x] `pgadmin.tusher.ru`
+  - [x] `feedback.tusher.ru`  
 
 ---
 
